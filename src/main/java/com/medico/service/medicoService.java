@@ -21,11 +21,10 @@ public class medicoService {
 	 private especialidadRepository eR;
 	 
 	 public medico guardar(medico r) {
-		 medico m = new medico();
-		
-		 m.setEspecialidad(r.getEspecialidad());
-		 m.setNombre(r.getNombre());
-		 return mR.save(m);
+		 especialidad e = eR.findById(r.getEspecialidad().getId()).orElse(null);
+		 r.setEspecialidad(e);
+		 return mR.save(r);
+	
 	 }
 	 
 	 public List<medico> listar(){
@@ -33,18 +32,26 @@ public class medicoService {
 }
 	 
 	public medico get(Integer id) {
-		return mR.findById(id).orElse(null);
+	return mR.findById(id).orElseThrow(() -> new RuntimeException("Medico no encontrado id:" + id));
 	}
 	
 	public medico actualizar(Integer id,medico r) {
-		medico medico = mR.findById(id).orElseThrow(() -> new RuntimeException("Medico no encontrado id:" + medico.getId()));
-		especialidad especialidad = eR.findById(r.getEspecialidad());
+		medico medico = mR.findById(id).orElseThrow(() -> new RuntimeException("Medico no encontrado id:" + r.getId()));
+		especialidad especialidad = eR.findById(r.getEspecialidad().getId()).orElseThrow(() -> new RuntimeException("Especialidad no encontrada id:" +r.getEspecialidad().getId()));
 	
 		medico.setNombre(r.getNombre());
 		medico.setEspecialidad(especialidad);
 		
 		return mR.save(medico);
 		
+	}
+	
+	public boolean eliminar(Integer id) {
+		if(mR.existsById(id)) {
+			mR.deleteById(id);
+			return true;
+		}
+		return false;
 	}
 	 
 }
